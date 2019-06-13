@@ -1,0 +1,9 @@
+{
+	"fileVersion": 1,
+	"versions": {
+		"d2sqlite3": "0.18.1",
+		"miniorm": "0.0.1",
+		"sumtype": "0.8.6",
+		"unit-threaded": "0.9.4"
+	}
+}

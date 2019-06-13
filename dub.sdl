@@ -1,0 +1,6 @@
+name "gcov-coverage"
+description "A minimal D application."
+authors "Axel Karlsson"
+copyright "Copyright © 2019, Axel Karlsson"
+license "BSL-1.0"
+dependency "miniorm" version="~>0.0.1"
