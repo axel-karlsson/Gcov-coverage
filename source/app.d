@@ -1,71 +1,75 @@
-import std.stdio;
-import std.string;
-import std.range.primitives : empty;
+import std;
 
-struct CodeLine
-{
-	string line_nr, execution_nr;
-	auto  toString() const
-	{
-		return format(("Line nr %s: Executed %s times"), line_nr, execution_nr);
-	};
+struct CodeLine {
+    string lineNr, executionNr;
+    auto toString() const {
+        return format(("Line nr %s: Executed %s times"), lineNr, executionNr);
+    };
 }
 
-struct Lines{
-	CodeLine[] codelines;
+struct LineUsageCnt {
+    int uncov, unexec;
+    auto toString() const {
+        return format(("%s unexecuted lines(-). %s none covered lines(#####)"), uncov, unexec);
+    }
 }
 
-struct CodeLineRange{
-	CodeLine[] codelines;
-
-	this(Lines line){
-		this.codelines = line.codelines;
-	}
-	@property bool empty() const{
-		return codelines.length == 0;
-	}
-	@property ref CodeLine front(){
-		return codelines[0];
-	}
+struct Lines {
+    CodeLine[] codelines;
 }
 
-auto split_codeline(ref string line){
+//Remove???
+struct CodeLineRange {
+    CodeLine[] codelines;
 
-	string exenr, linenr;
-	auto splitted = split(line, ":");
-	if(splitted)
-	{
-		exenr = strip(splitted[0]);
-		linenr = strip(splitted[1]);
-	}
-	auto split_line = CodeLine(linenr, exenr);
-	return split_line;
+    this(Lines line) {
+        this.codelines = line.codelines;
+    }
+
+    @property bool empty() const {
+        return codelines.length == 0;
+    }
+
+    @property ref CodeLine front() {
+        return codelines[0];
+    }
 }
 
-auto count_line_usage(Lines line){
-	//TODO
-
+auto splitCodeLine(string line) {
+    string exenr, linenr;
+    auto splitted = split(line, ":");
+    if (splitted) {
+        exenr = strip(splitted[0]);
+        linenr = strip(splitted[1]);
+    }
+    auto splitLine = CodeLine(linenr, exenr);
+    return splitLine;
 }
 
-auto addToRange(ref CodeLine line, ref Lines ranges){
-	ranges.codelines ~= line;
-	return ranges;
-
+//Will improve this later on... With count??
+auto countLineUsage(Lines line) {
+    LineUsageCnt lineUsage;
+    foreach (i; line.codelines) {
+        if (i.executionNr == "-" && i.lineNr != "0") {
+            lineUsage.uncov++;
+        } else if (i.executionNr == "#####") {
+            lineUsage.unexec++;
+        }
+    }
+    return lineUsage;
 }
 
-void main()
-{
-	CodeLine line;
-	Lines ranges;
+auto writeCodeCoverage() {
+    //TODO More output somehow?
+}
 
-	File file = File("source/test.c.gcov", "r");
-	while(!file.eof()){
-		auto gcov = file.readln();
-		 line = split_codeline(gcov);
-		 ranges = addToRange(line, ranges);
-	}
-	file.close();
+void main() {
+    Lines lines;
 
-	writeln(ranges);
-
+    auto file = File("source/test.c.gcov", "r");
+		foreach (line; file.byLineCopy.map!(a => splitCodeLine(a))) {
+        lines.codelines ~= line;
+    }
+    file.close();
+    writeln(countLineUsage(lines));
 }
