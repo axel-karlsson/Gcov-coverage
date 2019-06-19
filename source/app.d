@@ -8,9 +8,10 @@ struct CodeLine {
 }
 
 struct LineUsageCnt {
-    int uncov, unexec;
+    int uncov, unexec, cov;
     auto toString() const {
-        return format(("%s unexecuted lines(-). %s none covered lines(#####)"), uncov, unexec);
+        return format(("%s unexecuted lines(-). %s none covered lines(#####). %s covered lines"),
+                uncov, unexec, cov);
     }
 }
 
@@ -38,10 +39,9 @@ struct CodeLineRange {
 auto splitCodeLine(string line) {
     string exenr, linenr;
     auto splitted = split(line, ":");
-    if (splitted) {
-        exenr = strip(splitted[0]);
-        linenr = strip(splitted[1]);
-    }
+    exenr = strip(splitted[0]);
+    linenr = strip(splitted[1]);
+
     auto splitLine = CodeLine(linenr, exenr);
     return splitLine;
 }
@@ -54,22 +54,37 @@ auto countLineUsage(Lines line) {
             lineUsage.uncov++;
         } else if (i.executionNr == "#####") {
             lineUsage.unexec++;
+        } else if (isNumeric(i.executionNr)) {
+            lineUsage.cov++;
         }
     }
     return lineUsage;
 }
 
-auto writeCodeCoverage() {
-    //TODO More output somehow?
+//Print the uncovered lines
+auto getUncoveredLines(Lines lines) {
+    writeln("None covered lines: ");
+    foreach (uncovered; filter!(a => a.executionNr == "#####")(lines.codelines)) {
+        writeln(uncovered.lineNr);
+    }
+}
+//Might be redundant
+auto getCoveredLines(Lines lines) {
+    writeln("Covered lines: ");
+    foreach (covered; filter!(a => isNumeric(a.executionNr))(lines.codelines)) {
+        writeln(covered.lineNr);
+    }
 }
 
 void main() {
     Lines lines;
 
     auto file = File("source/test.c.gcov", "r");
-		foreach (line; file.byLineCopy.map!(a => splitCodeLine(a))) {
+    foreach (line; file.byLineCopy.map!(a => splitCodeLine(a))) {
         lines.codelines ~= line;
     }
     file.close();
     writeln(countLineUsage(lines));
+    getUncoveredLines(lines);
+    getCoveredLines(lines);
 }
