@@ -19,29 +19,11 @@ struct Lines {
     CodeLine[] codelines;
 }
 
-//Remove???
-struct CodeLineRange {
-    CodeLine[] codelines;
-
-    this(Lines line) {
-        this.codelines = line.codelines;
-    }
-
-    @property bool empty() const {
-        return codelines.length == 0;
-    }
-
-    @property ref CodeLine front() {
-        return codelines[0];
-    }
-}
-
 auto splitCodeLine(string line) {
     string exenr, linenr;
     auto splitted = split(line, ":");
     exenr = strip(splitted[0]);
     linenr = strip(splitted[1]);
-
     auto splitLine = CodeLine(linenr, exenr);
     return splitLine;
 }
@@ -61,29 +43,36 @@ auto countLineUsage(Lines line) {
     return lineUsage;
 }
 
-//Print the uncovered lines
 auto getUncoveredLines(Lines lines) {
     writeln("None covered lines: ");
-    foreach (uncovered; filter!(a => a.executionNr == "#####")(lines.codelines)) {
-        writeln(uncovered.lineNr);
+    foreach (nocovered; filter!(a => a.executionNr == "#####")(lines.codelines)) {
+        //writeln(nocovered.lineNr);
+        writeln(toJson(nocovered));
+
     }
 }
+
 //Might be redundant
 auto getCoveredLines(Lines lines) {
     writeln("Covered lines: ");
     foreach (covered; filter!(a => isNumeric(a.executionNr))(lines.codelines)) {
-        writeln(covered.lineNr);
+        writeln(toJson(covered));
     }
+}
+
+auto toJson(CodeLine codeline){
+  JSONValue j = ["executionNr": ""];
+  j.object["lineNr"] = JSONValue(codeline.lineNr);
+  j.object["executionNr"] = JSONValue(codeline.executionNr);
+  return j;
 }
 
 void main() {
     Lines lines;
-
     auto file = File("source/test.c.gcov", "r");
     foreach (line; file.byLineCopy.map!(a => splitCodeLine(a))) {
         lines.codelines ~= line;
     }
-    file.close();
     writeln(countLineUsage(lines));
     getUncoveredLines(lines);
     getCoveredLines(lines);
