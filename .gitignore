@@ -1,0 +1,15 @@
+.dub
+docs.json
+__dummy.html
+docs/
+/gcov-coverage
+gcov-coverage.so
+gcov-coverage.dylib
+gcov-coverage.dll
+gcov-coverage.a
+gcov-coverage.lib
+gcov-coverage-test-*
+*.exe
+*.o
+*.obj
+*.lst
