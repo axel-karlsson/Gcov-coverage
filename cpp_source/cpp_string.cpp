@@ -1,8 +1,8 @@
 #include "cpp_string.hpp"
 #include <iostream>
-
+#include "llvm/include/llvm/ProfileData/GCOV.h"
 using namespace std;
-
+using namespace llvm;
 
 //Enable strings to be sent back and forth (C++ - D)
 namespace CppString {
@@ -32,13 +32,14 @@ CppBytes getBytes(const char* text, int length) {
 
     return r;
 }
+
 CppStr getStr(const char* text) {
     CppStr r;
     r.cppStr = new std::string(text);
-
     return r;
 }
 CppStr createCppStr(){
     return getStr("");
 }
+
 } // CppString

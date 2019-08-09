@@ -4,3 +4,9 @@ authors "Axel Karlsson"
 copyright "Copyright © 2019, Axel Karlsson"
 license "BSL-1.0"
 dependency "miniorm" version="~>0.0.1"
+targetType "executable"
+
+
+lflags "-L/usr/lib/llvm-4.0/lib"  "-L/usr/lib/x86_64-linux-gnu/libstdc++" "-L/usr/lib/llvm-4.0/llvm/Support" "-Lllvm-flags"
+libs ":libclang.so.1" "stdc++" ":libLLVM-4.0.so.1" "LLVM-4.0"
+sourceFiles "gcov.o" "cpp_string.o"
